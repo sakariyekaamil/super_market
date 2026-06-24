@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, FileText } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { paymentsApi, salesApi } from '../api';
 import Modal from '../components/ui/Modal';
+import ActionIconButton from '../components/ui/ActionIconButton';
+import PaymentInvoiceModal, { PaymentInvoiceTarget } from '../components/PaymentInvoiceModal';
 import Pagination from '../components/ui/Pagination';
 import LoadingSkeleton from '../components/ui/LoadingSkeleton';
 import EmptyState from '../components/ui/EmptyState';
@@ -26,6 +28,7 @@ export default function PaymentsPage() {
   const [paymentMethod, setPaymentMethod] = useState('CASH');
   const [paidAmount, setPaidAmount] = useState(0);
   const [discount, setDiscount] = useState(0);
+  const [invoiceTarget, setInvoiceTarget] = useState<PaymentInvoiceTarget | null>(null);
   const queryClient = useQueryClient();
 
   const { data, isLoading } = useQuery({
@@ -132,9 +135,21 @@ export default function PaymentsPage() {
                   <td className="p-3 text-right">${Number(p.changeAmount).toFixed(2)}</td>
                   <td className="p-3">{new Date(p.paymentDate).toLocaleDateString()}</td>
                   <td className="p-3">
-                    <div className="flex justify-center gap-2">
-                      <button onClick={() => openEdit(p)} className="text-accent-warning"><Pencil size={16} /></button>
-                      <button onClick={() => deleteMutation.mutate(p.paymentId)} className="text-accent-danger"><Trash2 size={16} /></button>
+                    <div className="action-group">
+                      <ActionIconButton
+                        icon={FileText}
+                        title="Payment Invoice"
+                        variant="brand"
+                        onClick={() =>
+                          setInvoiceTarget({
+                            paymentId: p.paymentId,
+                            saleId: p.saleId,
+                            paymentDate: p.paymentDate,
+                          })
+                        }
+                      />
+                      <ActionIconButton icon={Pencil} title="Edit" variant="warning" onClick={() => openEdit(p)} />
+                      <ActionIconButton icon={Trash2} title="Delete" variant="danger" onClick={() => deleteMutation.mutate(p.paymentId)} />
                     </div>
                   </td>
                 </tr>
@@ -198,6 +213,7 @@ export default function PaymentsPage() {
           </div>
         </div>
       </Modal>
+      <PaymentInvoiceModal target={invoiceTarget} onClose={() => setInvoiceTarget(null)} />
     </div>
   );
 }

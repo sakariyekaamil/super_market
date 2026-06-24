@@ -27,4 +27,7 @@
   .card {
     @apply bg-white dark:bg-brand-deep rounded-xl shadow-sm border border-ui-card/50 p-6;
   }
+  .action-group {
+    @apply flex items-center justify-center gap-1.5;
+  }
 }

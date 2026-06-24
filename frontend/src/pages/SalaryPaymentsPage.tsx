@@ -4,6 +4,7 @@ import { Plus, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { salaryPaymentsApi, employeesApi } from '../api';
 import Modal from '../components/ui/Modal';
+import ActionIconButton from '../components/ui/ActionIconButton';
 import Pagination from '../components/ui/Pagination';
 import LoadingSkeleton from '../components/ui/LoadingSkeleton';
 import EmptyState from '../components/ui/EmptyState';
@@ -58,7 +59,7 @@ export default function SalaryPaymentsPage() {
                 <td className="p-3 text-right font-medium">${Number(p.amount).toFixed(2)}</td>
                 <td className="p-3">{new Date(p.paymentDate).toLocaleDateString()}</td>
                 <td className="p-3 text-center">
-                  <button onClick={() => deleteMutation.mutate(p.salaryPaymentId)} className="text-accent-danger"><Trash2 size={16} /></button>
+                  <ActionIconButton icon={Trash2} title="Delete" variant="danger" onClick={() => deleteMutation.mutate(p.salaryPaymentId)} />
                 </td>
               </tr>
             ))}</tbody>

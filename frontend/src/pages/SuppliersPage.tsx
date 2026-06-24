@@ -7,6 +7,7 @@ import { Plus, Pencil, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { suppliersApi } from '../api';
 import Modal from '../components/ui/Modal';
+import ActionIconButton from '../components/ui/ActionIconButton';
 import SearchInput from '../components/ui/SearchInput';
 import Pagination from '../components/ui/Pagination';
 import LoadingSkeleton from '../components/ui/LoadingSkeleton';
@@ -63,8 +64,10 @@ export default function SuppliersPage() {
                 <tr key={s.supplierId} className="border-b border-ui-card/50">
                   <td className="p-3">{s.supplierName}</td><td className="p-3">{s.phone || '-'}</td><td className="p-3">{s.address || '-'}</td>
                   <td className="p-3 flex gap-2 justify-center">
-                    <button onClick={() => { setEditing(s); reset(s); setModalOpen(true); }} className="text-accent-warning"><Pencil size={16} /></button>
-                    <button onClick={() => deleteMutation.mutate(s.supplierId)} className="text-accent-danger"><Trash2 size={16} /></button>
+                  <div className="action-group">
+                    <ActionIconButton icon={Pencil} title="Edit" variant="warning" onClick={() => { setEditing(s); reset(s); setModalOpen(true); }} />
+                    <ActionIconButton icon={Trash2} title="Delete" variant="danger" onClick={() => deleteMutation.mutate(s.supplierId)} />
+                  </div>
                   </td>
                 </tr>
               ))}

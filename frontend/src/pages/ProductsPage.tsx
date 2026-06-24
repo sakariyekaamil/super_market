@@ -7,6 +7,7 @@ import { Plus, Pencil, Trash2, AlertTriangle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { productsApi, categoriesApi, suppliersApi } from '../api';
 import Modal from '../components/ui/Modal';
+import ActionIconButton from '../components/ui/ActionIconButton';
 import SearchInput from '../components/ui/SearchInput';
 import Pagination from '../components/ui/Pagination';
 import LoadingSkeleton from '../components/ui/LoadingSkeleton';
@@ -93,8 +94,15 @@ export default function ProductsPage() {
                   <td className="p-3 text-right">${Number(p.sellingPrice).toFixed(2)}</td>
                   <td className={`p-3 text-right font-medium ${p.quantity <= 10 ? 'text-accent-warning' : ''}`}>{p.quantity}</td>
                   <td className="p-3 flex gap-2">
-                    <button onClick={() => { setEditing(p); reset({ ...p, buyingPrice: Number(p.buyingPrice), sellingPrice: Number(p.sellingPrice) }); setModalOpen(true); }} className="text-accent-warning"><Pencil size={16} /></button>
-                    <button onClick={() => deleteMutation.mutate(p.productId)} className="text-accent-danger"><Trash2 size={16} /></button>
+                  <div className="action-group">
+                    <ActionIconButton
+                      icon={Pencil}
+                      title="Edit"
+                      variant="warning"
+                      onClick={() => { setEditing(p); reset({ ...p, buyingPrice: Number(p.buyingPrice), sellingPrice: Number(p.sellingPrice) }); setModalOpen(true); }}
+                    />
+                    <ActionIconButton icon={Trash2} title="Delete" variant="danger" onClick={() => deleteMutation.mutate(p.productId)} />
+                  </div>
                   </td>
                 </tr>
               ))}

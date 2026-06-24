@@ -7,6 +7,9 @@ import { Plus, Pencil, Trash2, History } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { customersApi } from '../api';
 import Modal from '../components/ui/Modal';
+import ActionIconButton from '../components/ui/ActionIconButton';
+import CustomerHistoryModal from '../components/CustomerHistoryModal';
+import SaleInvoiceModal from '../components/SaleInvoiceModal';
 import SearchInput from '../components/ui/SearchInput';
 import Pagination from '../components/ui/Pagination';
 import LoadingSkeleton from '../components/ui/LoadingSkeleton';
@@ -21,6 +24,7 @@ export default function CustomersPage() {
   const [search, setSearch] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [invoiceSaleId, setInvoiceSaleId] = useState<number | null>(null);
   const [editing, setEditing] = useState<Customer | null>(null);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const queryClient = useQueryClient();
@@ -30,7 +34,7 @@ export default function CustomersPage() {
     queryFn: async () => (await customersApi.getAll({ page, limit: 10, search })).data,
   });
 
-  const { data: history } = useQuery({
+  const { data: history, isLoading: historyLoading } = useQuery({
     queryKey: ['customer-history', selectedCustomer?.customerId],
     queryFn: async () => (await customersApi.getHistory(selectedCustomer!.customerId)).data.data,
     enabled: !!selectedCustomer && historyOpen,
@@ -61,10 +65,22 @@ export default function CustomersPage() {
             <tbody>{(data.data as Customer[]).map((c) => (
               <tr key={c.customerId} className="border-b border-ui-card/50">
                 <td className="p-3">{c.fullName}</td><td className="p-3">{c.phone || '-'}</td><td className="p-3">{c.address || '-'}</td>
-                <td className="p-3 flex gap-2 justify-center">
-                  <button onClick={() => { setSelectedCustomer(c); setHistoryOpen(true); }} className="text-brand-primary" title="History"><History size={16} /></button>
-                  <button onClick={() => { setEditing(c); reset(c); setModalOpen(true); }} className="text-accent-warning"><Pencil size={16} /></button>
-                  <button onClick={() => deleteMutation.mutate(c.customerId)} className="text-accent-danger"><Trash2 size={16} /></button>
+                <td className="p-3">
+                  <div className="action-group">
+                    <ActionIconButton
+                      icon={History}
+                      title="History"
+                      variant="brand"
+                      onClick={() => { setSelectedCustomer(c); setHistoryOpen(true); }}
+                    />
+                    <ActionIconButton
+                      icon={Pencil}
+                      title="Edit"
+                      variant="warning"
+                      onClick={() => { setEditing(c); reset(c); setModalOpen(true); }}
+                    />
+                    <ActionIconButton icon={Trash2} title="Delete" variant="danger" onClick={() => deleteMutation.mutate(c.customerId)} />
+                  </div>
                 </td>
               </tr>
             ))}</tbody>
@@ -80,19 +96,18 @@ export default function CustomersPage() {
           <div className="flex gap-2 justify-end"><button type="button" onClick={() => setModalOpen(false)} className="btn-secondary">Cancel</button><button type="submit" className="btn-primary">Save</button></div>
         </form>
       </Modal>
-      <Modal open={historyOpen} onClose={() => setHistoryOpen(false)} title={`Purchase History - ${selectedCustomer?.fullName}`} size="lg">
-        {history?.sales?.length ? (
-          <div className="space-y-3 max-h-96 overflow-y-auto">
-            {history.sales.map((sale: { saleId: number; saleDate: string; totalAmount: number; items: { product: { productName: string }; quantity: number }[] }) => (
-              <div key={sale.saleId} className="p-3 border border-ui-card rounded-lg">
-                <div className="flex justify-between font-medium"><span>Sale #{sale.saleId}</span><span>${Number(sale.totalAmount).toFixed(2)}</span></div>
-                <p className="text-sm text-brand-deep/70">{new Date(sale.saleDate).toLocaleDateString()}</p>
-                <ul className="text-sm mt-2">{sale.items.map((i, idx) => <li key={idx}>{i.product.productName} x{i.quantity}</li>)}</ul>
-              </div>
-            ))}
-          </div>
-        ) : <EmptyState title="No purchases" message="This customer has no purchase history." />}
-      </Modal>
+      <CustomerHistoryModal
+        open={historyOpen}
+        customerName={selectedCustomer?.fullName ?? ''}
+        sales={history?.sales}
+        loading={historyLoading}
+        onClose={() => setHistoryOpen(false)}
+        onViewInvoice={(saleId) => {
+          setHistoryOpen(false);
+          setInvoiceSaleId(saleId);
+        }}
+      />
+      <SaleInvoiceModal saleId={invoiceSaleId} onClose={() => setInvoiceSaleId(null)} />
     </div>
   );
 }

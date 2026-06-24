@@ -7,6 +7,7 @@ import { Plus, Pencil, UserX } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { employeesApi } from '../api';
 import Modal from '../components/ui/Modal';
+import ActionIconButton from '../components/ui/ActionIconButton';
 import SearchInput from '../components/ui/SearchInput';
 import Pagination from '../components/ui/Pagination';
 import LoadingSkeleton from '../components/ui/LoadingSkeleton';
@@ -65,8 +66,17 @@ export default function EmployeesPage() {
                 <td className="p-3 text-right">${Number(e.salary).toFixed(2)}</td>
                 <td className="p-3"><span className={`px-2 py-1 rounded text-xs ${e.status === 'ACTIVE' ? 'bg-brand-primary/20 text-brand-primary' : 'bg-accent-danger/20 text-accent-danger'}`}>{e.status}</span></td>
                 <td className="p-3 flex gap-2 justify-center">
-                  <button onClick={() => { setEditing(e); reset({ ...e, salary: Number(e.salary), hireDate: e.hireDate?.split('T')[0] }); setModalOpen(true); }} className="text-accent-warning"><Pencil size={16} /></button>
-                  {e.status === 'ACTIVE' && <button onClick={() => deactivateMutation.mutate(e.employeeId)} className="text-accent-danger"><UserX size={16} /></button>}
+                  <div className="action-group">
+                    <ActionIconButton
+                      icon={Pencil}
+                      title="Edit"
+                      variant="warning"
+                      onClick={() => { setEditing(e); reset({ ...e, salary: Number(e.salary), hireDate: e.hireDate?.split('T')[0] }); setModalOpen(true); }}
+                    />
+                    {e.status === 'ACTIVE' && (
+                      <ActionIconButton icon={UserX} title="Deactivate" variant="danger" onClick={() => deactivateMutation.mutate(e.employeeId)} />
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}</tbody>

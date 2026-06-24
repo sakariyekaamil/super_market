@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Trash2, Printer } from 'lucide-react';
+import { Plus, Trash2, FileText } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { salesApi, customersApi, productsApi } from '../api';
 import Modal from '../components/ui/Modal';
+import ActionIconButton from '../components/ui/ActionIconButton';
+import SaleInvoiceModal from '../components/SaleInvoiceModal';
 import Pagination from '../components/ui/Pagination';
 import LoadingSkeleton from '../components/ui/LoadingSkeleton';
 import EmptyState from '../components/ui/EmptyState';
@@ -16,6 +18,7 @@ export default function SalesPage() {
   const [customerId, setCustomerId] = useState('');
   const [items, setItems] = useState<SaleItem[]>([{ productId: 0, quantity: 1 }]);
   const [barcode, setBarcode] = useState('');
+  const [invoiceSaleId, setInvoiceSaleId] = useState<number | null>(null);
   const queryClient = useQueryClient();
 
   const { data, isLoading } = useQuery({
@@ -44,26 +47,6 @@ export default function SalesPage() {
     mutationFn: (id: number) => salesApi.delete(id),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['sales'] }); toast.success('Deleted'); },
   });
-
-  const printReceipt = async (saleId: number) => {
-    try {
-      const res = await salesApi.getReceipt(saleId);
-      const r = res.data.data.receipt;
-      const win = window.open('', '_blank');
-      if (!win) return;
-      win.document.write(`<html><head><title>Receipt #${r.saleId}</title></head><body style="font-family:monospace;padding:20px">
-        <h2>${r.storeName}</h2><p>Receipt #${r.saleId}</p><p>Date: ${new Date(r.date).toLocaleString()}</p>
-        <p>Cashier: ${r.cashier}</p><p>Customer: ${r.customer}</p><hr/>
-        ${r.items.map((i: { name: string; quantity: number; unitPrice: number; subTotal: number }) =>
-          `<p>${i.name} x${i.quantity} @ $${i.unitPrice.toFixed(2)} = $${i.subTotal.toFixed(2)}</p>`).join('')}
-        <hr/><p><strong>Total: $${r.total.toFixed(2)}</strong></p>
-        ${r.payment ? `<p>Paid: $${r.payment.paid.toFixed(2)} | Change: $${r.payment.change.toFixed(2)}</p>` : ''}
-        <p>Thank you!</p></body></html>`);
-      win.print();
-    } catch {
-      toast.error('Failed to print receipt');
-    }
-  };
 
   const searchBarcode = async () => {
     if (!barcode) return;
@@ -96,9 +79,13 @@ export default function SalesPage() {
                 <td className="p-3">{new Date(s.saleDate).toLocaleDateString()}</td>
                 <td className="p-3 text-right font-medium">${Number(s.totalAmount).toFixed(2)}</td>
                 <td className="p-3 text-center">{s.payment ? <span className="text-brand-primary text-sm">Paid</span> : <span className="text-accent-warning text-sm">Pending</span>}</td>
-                <td className="p-3 flex gap-2 justify-center">
-                  <button onClick={() => printReceipt(s.saleId)} className="text-brand-primary" title="Print"><Printer size={16} /></button>
-                  {!s.payment && <button onClick={() => deleteMutation.mutate(s.saleId)} className="text-accent-danger"><Trash2 size={16} /></button>}
+                <td className="p-3">
+                  <div className="action-group">
+                    <ActionIconButton icon={FileText} title="Invoice" variant="brand" onClick={() => setInvoiceSaleId(s.saleId)} />
+                    {!s.payment && (
+                      <ActionIconButton icon={Trash2} title="Delete" variant="danger" onClick={() => deleteMutation.mutate(s.saleId)} />
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}</tbody>
@@ -135,6 +122,7 @@ export default function SalesPage() {
           </div>
         </div>
       </Modal>
+      <SaleInvoiceModal saleId={invoiceSaleId} onClose={() => setInvoiceSaleId(null)} />
     </div>
   );
 }

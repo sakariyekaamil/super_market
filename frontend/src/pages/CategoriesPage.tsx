@@ -7,6 +7,7 @@ import { Plus, Pencil, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { categoriesApi } from '../api';
 import Modal from '../components/ui/Modal';
+import ActionIconButton from '../components/ui/ActionIconButton';
 import SearchInput from '../components/ui/SearchInput';
 import Pagination from '../components/ui/Pagination';
 import LoadingSkeleton from '../components/ui/LoadingSkeleton';
@@ -84,9 +85,11 @@ export default function CategoriesPage() {
                 <tr key={cat.categoryId} className="border-b border-ui-card/50 hover:bg-ui-card/30">
                   <td className="p-3 font-medium">{cat.categoryName}</td>
                   <td className="p-3">{cat.description || '-'}</td>
-                  <td className="p-3 flex gap-2">
-                    <button onClick={() => openEdit(cat)} className="text-accent-warning"><Pencil size={16} /></button>
-                    <button onClick={() => deleteMutation.mutate(cat.categoryId)} className="text-accent-danger"><Trash2 size={16} /></button>
+                  <td className="p-3">
+                  <div className="action-group">
+                    <ActionIconButton icon={Pencil} title="Edit" variant="warning" onClick={() => openEdit(cat)} />
+                    <ActionIconButton icon={Trash2} title="Delete" variant="danger" onClick={() => deleteMutation.mutate(cat.categoryId)} />
+                  </div>
                   </td>
                 </tr>
               ))}

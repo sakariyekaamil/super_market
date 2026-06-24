@@ -4,6 +4,7 @@ import { Plus, Trash2, Eye } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { purchasesApi, suppliersApi, productsApi } from '../api';
 import Modal from '../components/ui/Modal';
+import ActionIconButton from '../components/ui/ActionIconButton';
 import Pagination from '../components/ui/Pagination';
 import LoadingSkeleton from '../components/ui/LoadingSkeleton';
 import EmptyState from '../components/ui/EmptyState';
@@ -70,10 +71,10 @@ export default function PurchasesPage() {
                 <td className="p-3">#{p.purchaseId}</td><td className="p-3">{p.supplier.supplierName}</td>
                 <td className="p-3">{new Date(p.purchaseDate).toLocaleDateString()}</td>
                 <td className="p-3 text-right font-medium">${Number(p.totalAmount).toFixed(2)}</td>
-                <td className="p-3 text-center">
-                  <div className="flex justify-center gap-2">
-                    <button onClick={() => { setViewId(p.purchaseId); setViewOpen(true); }} className="text-brand-primary" title="View"><Eye size={16} /></button>
-                    <button onClick={() => deleteMutation.mutate(p.purchaseId)} className="text-accent-danger"><Trash2 size={16} /></button>
+                <td className="p-3">
+                  <div className="action-group">
+                    <ActionIconButton icon={Eye} title="View" variant="brand" onClick={() => { setViewId(p.purchaseId); setViewOpen(true); }} />
+                    <ActionIconButton icon={Trash2} title="Delete" variant="danger" onClick={() => deleteMutation.mutate(p.purchaseId)} />
                   </div>
                 </td>
               </tr>

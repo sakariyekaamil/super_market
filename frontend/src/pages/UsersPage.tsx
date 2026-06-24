@@ -8,6 +8,7 @@ import toast from 'react-hot-toast';
 import { authApi } from '../api';
 import { useAuthStore } from '../store';
 import Modal from '../components/ui/Modal';
+import ActionIconButton from '../components/ui/ActionIconButton';
 import LoadingSkeleton from '../components/ui/LoadingSkeleton';
 import EmptyState from '../components/ui/EmptyState';
 import type { User } from '../types';
@@ -106,21 +107,19 @@ export default function UsersPage() {
                   </td>
                   <td className="p-3">{new Date(u.createdAt).toLocaleDateString()}</td>
                   <td className="p-3">
-                    <div className="flex justify-center gap-2">
-                      <button
+                    <div className="action-group">
+                      <ActionIconButton
+                        icon={Pencil}
+                        title="Edit"
+                        variant="warning"
                         onClick={() => {
                           setEditing(u);
                           updateForm.reset({ fullName: u.fullName, role: u.role });
                           setEditModalOpen(true);
                         }}
-                        className="text-accent-warning"
-                      >
-                        <Pencil size={16} />
-                      </button>
+                      />
                       {u.userId !== currentUser?.userId && (
-                        <button onClick={() => deleteMutation.mutate(u.userId)} className="text-accent-danger">
-                          <Trash2 size={16} />
-                        </button>
+                        <ActionIconButton icon={Trash2} title="Delete" variant="danger" onClick={() => deleteMutation.mutate(u.userId)} />
                       )}
                     </div>
                   </td>
