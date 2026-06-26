@@ -96,7 +96,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
           open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         )}
       >
-        <div className="flex items-center justify-between border-b border-brand-deep p-5">
+        <div className="flex items-center justify-between border-b border-brand-deep px-5 py-6">
           <div>
             <h1 className="text-xl font-bold text-brand-primary">Alraxma</h1>
             <p className="text-xs text-ui-card/70">Supermarket System</p>
@@ -110,13 +110,13 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
           </button>
         </div>
 
-        <nav className="flex-1 overflow-y-auto p-3">
+        <nav className="flex-1 space-y-7 overflow-y-auto px-4 py-5">
           {visibleSections.map((section) => (
-            <div key={section.title} className="mb-4">
-              <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-ui-card/50">
+            <div key={section.title}>
+              <p className="mb-3 px-3 text-xs font-semibold uppercase tracking-wider text-ui-card/50">
                 {section.title}
               </p>
-              <div className="space-y-0.5">
+              <div className="space-y-1.5">
                 {section.items.map((item) => (
                   <NavLink
                     key={item.to}
@@ -124,7 +124,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
                     onClick={onClose}
                     className={({ isActive }) =>
                       clsx(
-                        'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+                        'flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors',
                         isActive
                           ? 'bg-brand-primary text-white shadow-sm'
                           : 'text-ui-card hover:bg-brand-deep hover:text-white'
@@ -141,7 +141,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
         </nav>
 
         {user && (
-          <div className="border-t border-brand-deep p-4">
+          <div className="border-t border-brand-deep px-5 py-5">
             <p className="truncate text-sm font-medium">{user.fullName}</p>
             <p className="text-xs capitalize text-ui-card/60">{user.role.toLowerCase()}</p>
           </div>
